@@ -4,7 +4,7 @@ client_id = "de5a97afdffc7c57399e106356013013"
 name = "Custom Sticker Designer"
 # REQUIRED for production and App Store: Your live app URL (HTTPS). Webhooks and billing redirects use this.
 # Set to your real host before publishing (e.g. https://your-app.example.com). example.com will cause webhook/billing failures.
-application_url = "https://example.com"
+application_url = "https://sticker-designer-shpify-app.vercel.app/"
 embedded = true
 
 [build]
@@ -38,4 +38,4 @@ subpath = "custom-stickers"
 
 [auth]
 # Must match application_url domain exactly (same as application_url above).
-redirect_urls = [ "https://example.com/api/auth" ]
+redirect_urls = [ "https://sticker-designer-shpify-app.vercel.app/api/auth" ]
