@@ -26,9 +26,9 @@ api_version = "2026-04"
   uri = "/webhooks/orders/paid"
 
 [access_scopes]
-# Required for App Store billing (1.2.x): applications_billing for Billing API; read_orders for orders/paid webhook.
-# See https://shopify.dev/docs/apps/store/requirements and https://shopify.dev/docs/apps/launch/billing
-scopes = "write_products,write_app_proxy,read_orders,applications_billing"
+# read_orders required for orders/paid webhook. Billing API works without a separate scope when using GraphQL billing mutations.
+# See https://shopify.dev/docs/apps/build/authentication-authorization/app-installation/manage-access-scopes
+scopes = "write_products,write_app_proxy,read_orders"
 optional_scopes = ["write_draft_orders"]
 
 [app_proxy]

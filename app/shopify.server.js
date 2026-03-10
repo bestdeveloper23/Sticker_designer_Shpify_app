@@ -7,8 +7,8 @@ import {
 import { PrismaSessionStorage } from "@shopify/shopify-app-session-storage-prisma";
 import prisma from "./db.server";
 
-// Must match shopify.app.toml scopes. applications_billing + read_orders required for App Store billing and orders/paid webhook.
-const requiredScopes = (process.env.SCOPES || "write_products,write_app_proxy,read_orders,applications_billing")
+// Must match shopify.app.toml scopes. read_orders required for orders/paid webhook.
+const requiredScopes = (process.env.SCOPES || "write_products,write_app_proxy,read_orders")
   .split(",")
   .map((s) => s.trim())
   .filter(Boolean);

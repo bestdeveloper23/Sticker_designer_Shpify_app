@@ -91,8 +91,8 @@ npx prisma migrate dev --name add_shop_billing
 
 ## Scopes (required for billing)
 
-- **`applications_billing`** – Required to call Billing API (`appSubscriptionCreate`, `appUsageRecordCreate`). Configured in `shopify.app.toml` and `app/shopify.server.js`.
 - **`read_orders`** – Required to receive the `orders/paid` webhook payload. Configured in `shopify.app.toml` and `app/shopify.server.js`.
+- Billing API (`appSubscriptionCreate`, `appUsageRecordCreate`) is available without a separate `applications_billing` scope; do not add that scope (it is invalid and causes "invalid scope" errors).
 
 ## Before first publish
 
