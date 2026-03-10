@@ -13,12 +13,18 @@ const requiredScopes = (process.env.SCOPES || "write_products,write_app_proxy,re
   .map((s) => s.trim())
   .filter(Boolean);
 
+// App URL: set SHOPIFY_APP_URL in production. On Vercel, fallback to https://VERCEL_URL when unset.
+const appUrl =
+  process.env.SHOPIFY_APP_URL ||
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "") ||
+  "";
+
 const shopify = shopifyApp({
   apiKey: process.env.SHOPIFY_API_KEY,
   apiSecretKey: process.env.SHOPIFY_API_SECRET || "",
   apiVersion: ApiVersion.October25,
   scopes: requiredScopes,
-  appUrl: process.env.SHOPIFY_APP_URL || "",
+  appUrl,
   authPathPrefix: "/auth",
   sessionStorage: new PrismaSessionStorage(prisma),
   distribution: AppDistribution.AppStore,
