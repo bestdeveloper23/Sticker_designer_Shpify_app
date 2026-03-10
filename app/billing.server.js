@@ -33,7 +33,7 @@ function isStickerOrder(order) {
 }
 
 function getOrderTotal(order) {
-  const total = order.total_price || order.total_price_set?.shop_money?.amount ?? 0;
+  const total = (order.total_price || order.total_price_set?.shop_money?.amount) ?? 0;
   return typeof total === "string" ? parseFloat(total) || 0 : Number(total) || 0;
 }
 
