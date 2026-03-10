@@ -55,4 +55,8 @@ export default defineConfig({
   optimizeDeps: {
     include: ["@shopify/app-bridge-react"],
   },
+  // Bundle these into the server build so Vercel's Node runtime doesn't load them as CJS (avoids "Named export not found").
+  ssr: {
+    noExternal: ["react-router", "react", "react-dom"],
+  },
 });
