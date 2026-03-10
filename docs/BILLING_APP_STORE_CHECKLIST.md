@@ -8,8 +8,14 @@ Use this before submitting your app to the Shopify App Store to avoid billing-re
 
 ### Step 1: Deploy your app and get a production URL
 
-- Host your app on a server (e.g. Fly.io, Heroku, Railway, or your own host) so it has a **public HTTPS URL** (e.g. `https://custom-sticker-designer.fly.dev` or `https://app.yourdomain.com`).
+- Host your app on a server (e.g. **Vercel**, Fly.io, Heroku, Railway) so it has a **public HTTPS URL** (e.g. `https://your-app.vercel.app` or `https://app.yourdomain.com`).
 - Make sure the app runs and is reachable at that URL.
+
+**If you use Vercel:**
+- This app is **React Router v7**, not Next.js. The project includes `@vercel/react-router` and `react-router.config.js` with the Vercel preset so Vercel builds it correctly.
+- In Vercel: **Project Settings → General → Framework Preset** → set to **"React Router"** (or **"Other"** with Build Command `npm run build`). Do not leave it set to "Next.js" or you will see "No Next.js version detected".
+- Ensure **Root Directory** is the folder that contains `package.json` (usually the repo root).
+- Add env vars in Vercel (e.g. `DATABASE_URL`, `SHOPIFY_API_KEY`, `SHOPIFY_API_SECRET`, `SHOPIFY_APP_URL`). For Prisma, use a hosted DB (e.g. Vercel Postgres, Neon) and run migrations before or during deploy.
 
 ### Step 2: Set the app URL in config
 
