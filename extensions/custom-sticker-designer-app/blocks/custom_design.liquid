@@ -287,7 +287,7 @@
       buttonEl.textContent = "Design Selected";
     };
 
-    const createDraftOrder = (payload) => {
+    const createDraftOrder = (payload, useVariantId) => {
       const {
         referenceCode,
         designUrl,
@@ -302,7 +302,7 @@
       const qtyNum = quantity != null ? Number(quantity) : NaN;
       const properties = {};
       if (referenceCode) properties.Reference_Code = String(referenceCode);
-      if (designUrl) properties.Design_URL = String(designUrl);
+      if (designUrl) properties._Design_URL = String(designUrl);
       if (stickerSize != null) {
         const sizeVal = typeof stickerSize === "number" ? stickerSize + '"' : (String(stickerSize).indexOf('"') >= 0 ? stickerSize : stickerSize + '"');
         properties.Sticker_Size = sizeVal;
@@ -310,7 +310,12 @@
       if (quantity != null) properties.Quantity = String(quantity);
       if (outlineType) properties.Outline_Type = String(outlineType);
       if (imageName) properties.Image_Name = String(imageName);
-      if (rawImageUrl) properties.Original_Image_URL = String(rawImageUrl);
+      if (rawImageUrl) properties._Original_Image_URL = String(rawImageUrl);
+
+      const variantToUse = useVariantId != null ? useVariantId : customVariantId;
+      if (variantToUse == null) {
+        return Promise.reject(new Error("No variant available for draft order. Add a \"Custom Size\" variant to this product."));
+      }
 
       const url = (function () {
         var path = DRAFT_ORDER_PATH;
@@ -322,7 +327,7 @@
         method: "POST",
         headers: { "Content-Type": "application/json", "Accept": "application/json" },
         body: JSON.stringify({
-          variantId: String(customVariantId),
+          variantId: String(variantToUse),
           quantity: 1,
           stickerSize: Number.isNaN(sizeNum) ? 2 : sizeNum,
           quantityOption: Number.isNaN(qtyNum) ? 50 : Math.max(1, Math.min(500, qtyNum)),

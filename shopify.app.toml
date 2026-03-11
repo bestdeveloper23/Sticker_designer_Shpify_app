@@ -28,8 +28,7 @@ api_version = "2026-04"
 [access_scopes]
 # read_orders required for orders/paid webhook. Billing API works without a separate scope when using GraphQL billing mutations.
 # See https://shopify.dev/docs/apps/build/authentication-authorization/app-installation/manage-access-scopes
-scopes = "write_products,write_app_proxy,read_orders"
-optional_scopes = ["write_draft_orders"]
+scopes = "write_products,write_app_proxy,read_orders,write_draft_orders"
 
 [app_proxy]
 url = "/apps/proxy"
