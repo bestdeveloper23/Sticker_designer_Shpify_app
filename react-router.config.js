@@ -1,8 +1,16 @@
-import { vercelPreset } from "@vercel/react-router/vite";
+import { createRequire } from "module";
+const require = createRequire(import.meta.url);
+
+let presets = [];
+try {
+  const { vercelPreset } = require("@vercel/react-router/vite");
+  presets = [vercelPreset()];
+} catch {
+  // @vercel/react-router not installed - fine for local dev; Vercel installs it before build
+}
 
 /** @type {import('@react-router/dev/config').Config} */
 export default {
   ssr: true,
-  // ESM (default): Vercel runs the server as ES module; CJS would cause "exports is not defined in ES module scope".
-  presets: [vercelPreset()],
+  presets,
 };
