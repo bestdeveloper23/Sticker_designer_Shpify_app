@@ -36,6 +36,14 @@ if (host === "localhost") {
 }
 
 export default defineConfig({
+  resolve: {
+    dedupe: [
+      "react",
+      "react-dom",
+      "react-router",
+      "@shopify/app-bridge-react",
+    ],
+  },
   server: {
     allowedHosts: [host],
     cors: {
@@ -56,7 +64,14 @@ export default defineConfig({
     include: ["@shopify/app-bridge-react"],
   },
   // Bundle these into the server build so Vercel's Node runtime doesn't load them as CJS (avoids "Named export not found").
+  // Ensures single React instance to prevent "useContext is null" on Vercel serverless.
   ssr: {
-    noExternal: ["react-router", "react", "react-dom"],
+    noExternal: [
+      "react",
+      "react-dom",
+      "react-router",
+      "@shopify/app-bridge-react",
+      "@shopify/shopify-app-react-router",
+    ],
   },
 });
