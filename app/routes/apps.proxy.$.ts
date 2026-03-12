@@ -1,18 +1,5 @@
 import { authenticate } from "../shopify.server";
-
-/**
- * Calculate custom sticker price. Match this formula to your designer app (e.g. Replit).
- * Can later be driven by app admin settings.
- */
-function calculateCustomPrice(stickerSize: number, quantity: number): number {
-  const size = Number(stickerSize) || 2;
-  const qty = Math.max(1, Math.min(Number(quantity) || 50, 500));
-  // Placeholder formula: base + (size factor * qty). Adjust to match your designer pricing.
-  const base = 10;
-  const perSize = 2;
-  const price = base + size * perSize * (qty / 50);
-  return Math.round(price * 100) / 100;
-}
+import { calculateDraftOrderPrice } from "../pricing.server";
 
 export const action = async ({ request }) => {
   const url = new URL(request.url);
@@ -33,6 +20,8 @@ export const action = async ({ request }) => {
     quantity?: number;
     stickerSize?: number;
     quantityOption?: number;
+    widthIn?: number;
+    heightIn?: number;
     properties?: Record<string, string>;
     designUrl?: string;
     rawImageUrl?: string;
@@ -47,11 +36,13 @@ export const action = async ({ request }) => {
   const quantity = body.quantity ?? 1;
   const stickerSize = body.stickerSize ?? 2;
   const quantityOption = body.quantityOption ?? 50;
+  const widthIn = body.widthIn;
+  const heightIn = body.heightIn;
   if (!variantId) {
     return Response.json({ error: "variantId is required" }, { status: 400 });
   }
 
-  const price = calculateCustomPrice(stickerSize, quantityOption);
+  const price = calculateDraftOrderPrice(widthIn, heightIn, stickerSize, quantityOption);
   const variantGid =
     variantId.startsWith("gid://") ? variantId : `gid://shopify/ProductVariant/${variantId}`;
 

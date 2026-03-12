@@ -299,6 +299,7 @@
       } = payload || {};
 
       const sizeNum = stickerSize != null ? (Number(stickerSize) || parseStickerSizeNumber(stickerSize)) : NaN;
+      const dims = parseStickerSizeDimensions(stickerSize);
       const qtyNum = quantity != null ? Number(quantity) : NaN;
       const properties = {};
       if (referenceCode) properties.Reference_Code = String(referenceCode);
@@ -330,7 +331,9 @@
           variantId: String(variantToUse),
           quantity: 1,
           stickerSize: Number.isNaN(sizeNum) ? 2 : sizeNum,
-          quantityOption: Number.isNaN(qtyNum) ? 50 : Math.max(1, Math.min(500, qtyNum)),
+          quantityOption: Number.isNaN(qtyNum) ? 50 : Math.max(1, Math.min(1000, qtyNum)),
+          widthIn: dims.width,
+          heightIn: dims.height,
           properties: properties
         })
       })
@@ -428,6 +431,22 @@
       if (!Number.isNaN(n)) return n;
       var match = String(val).match(/[\d.]+/);
       return match ? Number(match[0]) : NaN;
+    }
+
+    /** Parse sticker size into width/height (inches). "2x3" -> { width: 2, height: 3 }; "2" or 2 -> { width: 2, height: 2 }. */
+    function parseStickerSizeDimensions(val) {
+      if (val == null) return { width: 2, height: 2 };
+      var n = Number(val);
+      if (!Number.isNaN(n) && n > 0) return { width: n, height: n };
+      var str = String(val).trim();
+      var match = str.match(/^([\d.]+)\s*[xX×]\s*([\d.]+)$/);
+      if (match) {
+        var w = Number(match[1]);
+        var h = Number(match[2]);
+        if (!Number.isNaN(w) && !Number.isNaN(h) && w > 0 && h > 0) return { width: w, height: h };
+      }
+      var single = parseStickerSizeNumber(val);
+      return { width: Number.isNaN(single) ? 2 : single, height: Number.isNaN(single) ? 2 : single };
     }
 
     /** Read design params from URL. Supports designer app redirect: product URL with properties[Sticker_Size], properties[Quantity], properties[Design_URL], etc. */
