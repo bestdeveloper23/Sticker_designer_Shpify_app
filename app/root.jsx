@@ -19,7 +19,7 @@ export async function loader() {
 }
 
 export default function App() {
-  const { shopifyApiKey } = useLoaderData<Awaited<ReturnType<typeof loader>>>();
+  const { shopifyApiKey } = useLoaderData();
 
   return (
     <html lang="en">
