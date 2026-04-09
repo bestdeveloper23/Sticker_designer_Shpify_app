@@ -4,20 +4,35 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLoaderData,
   useRouteError,
 } from "react-router";
 
+/**
+ * Polaris web components (<s-page>, etc.) only render after polaris.js runs.
+ * See https://shopify.dev/docs/api/app-home/polaris-web-components
+ */
+export async function loader() {
+  return {
+    shopifyApiKey: process.env.SHOPIFY_API_KEY ?? "",
+  };
+}
+
 export default function App() {
+  const { shopifyApiKey } = useLoaderData<Awaited<ReturnType<typeof loader>>>();
+
   return (
     <html lang="en">
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <meta name="shopify-api-key" content={shopifyApiKey} />
         <link rel="preconnect" href="https://cdn.shopify.com/" />
         <link
           rel="stylesheet"
           href="https://cdn.shopify.com/static/fonts/inter/v4/styles.css"
         />
+        <script src="https://cdn.shopify.com/shopifycloud/polaris.js" />
         <Meta />
         <Links />
       </head>
