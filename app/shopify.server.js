@@ -7,13 +7,11 @@ import {
 import { PrismaSessionStorage } from "@shopify/shopify-app-session-storage-prisma";
 import prisma from "./db.server";
 
-// Must match shopify.app.toml scopes. read_orders required for orders/paid webhook.
-const requiredScopes = (process.env.SCOPES || "write_products,write_app_proxy,read_orders")
+const requiredScopes = (process.env.SCOPES || "write_products,write_app_proxy,read_orders,write_draft_orders")
   .split(",")
   .map((s) => s.trim())
   .filter(Boolean);
 
-// App URL: set SHOPIFY_APP_URL in production. On Vercel, fallback to https://VERCEL_URL when unset.
 const appUrl =
   process.env.SHOPIFY_APP_URL ||
   (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "") ||
@@ -47,10 +45,6 @@ export const sessionStorage = shopify.sessionStorage;
 
 const ADMIN_API_VERSION = "2025-10";
 
-/**
- * Returns a minimal Admin GraphQL client for the given session (e.g. from webhooks).
- * Use this when you have a session but no request context (e.g. orders/paid webhook).
- */
 export function adminGraphqlClient(session) {
   if (!session?.shop || !session?.accessToken) return null;
   return {

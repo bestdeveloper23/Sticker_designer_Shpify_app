@@ -7,8 +7,20 @@ export const action = async ({ request }) => {
     return Response.json({ error: "Method or path not allowed" }, { status: 400 });
   }
 
-  const { admin } = await authenticate.public.appProxy(request);
+  let admin;
+  try {
+    const proxyAuth = await authenticate.public.appProxy(request);
+    admin = proxyAuth.admin;
+  } catch (err) {
+    console.error("[apps.proxy] App proxy auth failed:", err);
+    return Response.json(
+      { error: "App proxy authentication failed. Check app installation and API credentials." },
+      { status: 401 }
+    );
+  }
+
   if (!admin) {
+    console.error("[apps.proxy] No admin client — shop may not have an offline session");
     return Response.json(
       { error: "Store session not available. Ensure the app is installed." },
       { status: 503 }
@@ -94,6 +106,17 @@ export const action = async ({ request }) => {
     result = await response.json();
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
+    console.error("[apps.proxy] GraphQL draftOrderCreate failed:", msg);
+    if (/protected.customer.data|not approved to access the DraftOrder/i.test(msg)) {
+      return Response.json(
+        {
+          error:
+            "Draft orders are blocked until this app is approved for protected customer data in the Shopify Partner Dashboard. See https://shopify.dev/docs/apps/launch/protected-customer-data",
+          code: "PROTECTED_CUSTOMER_DATA",
+        },
+        { status: 403 }
+      );
+    }
     if (/scope|permission|access/i.test(msg)) {
       return Response.json(
         {
@@ -103,10 +126,23 @@ export const action = async ({ request }) => {
         { status: 403 }
       );
     }
-    throw err;
+    return Response.json({ error: "Failed to create draft order." }, { status: 500 });
   }
 
   const graphqlErrors = result?.errors || [];
+  const pcdError = graphqlErrors.find((e: { message: string }) =>
+    /protected.customer.data|DraftOrder/i.test(e?.message || "")
+  );
+  if (pcdError) {
+    return Response.json(
+      {
+        error:
+          "Draft orders are blocked until this app is approved for protected customer data. See https://shopify.dev/docs/apps/launch/protected-customer-data",
+        code: "PROTECTED_CUSTOMER_DATA",
+      },
+      { status: 403 }
+    );
+  }
   const scopeError = graphqlErrors.find(
     (e: { message: string }) => /scope|permission|access/i.test(e?.message || "")
   );
@@ -167,12 +203,19 @@ function isAllowedDesignerOrigin(origin: string | null): boolean {
 }
 
 export const loader = async ({ request }) => {
-  await authenticate.public.appProxy(request);
+  try {
+    await authenticate.public.appProxy(request);
+  } catch (err) {
+    console.error("[apps.proxy] App proxy auth failed (loader):", err);
+    return Response.json(
+      { error: "App proxy authentication failed.", designs: [] },
+      { status: 401 }
+    );
+  }
 
   const url = new URL(request.url);
   const pathname = url.pathname || "";
 
-  // Proxy GET .../designs to the designer app (avoids CORS for "My Designs")
   if (request.method === "GET" && pathname.endsWith("/designs")) {
     const customerId = url.searchParams.get("customerId") ?? "";
     const designerOriginParam = url.searchParams.get("designerOrigin");

@@ -96,6 +96,16 @@ async function getActiveUsageLineItemId(admin) {
  * May also return { hasSubscription: true, usageLineItemId } after creating a new subscription (we get line item id from create response).
  */
 export async function ensureBillingSubscription(admin, shop, returnUrl) {
+  if (process.env.NODE_ENV !== "production") {
+    await db.shopBilling.upsert({
+      where: { shop },
+      create: { shop, stickerOrderCount: 0 },
+      update: {},
+    });
+
+    return { hasSubscription: true, usageLineItemId: null };
+  }
+
   const usageLineItemId = await getActiveUsageLineItemId(admin);
   if (usageLineItemId) {
     await db.shopBilling.upsert({
